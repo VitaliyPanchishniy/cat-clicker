@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import CircleButton from '../components/CircleButton';
 import ShopButton from '../components/ShopButton';
+import CatImage from '../components/CatImage'; // 👉 додано
 import { colors } from '../styles/colors';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -13,9 +14,11 @@ export default function CounterScreen({ navigation }: Props) {
 
     return (
         <View style={styles.container}>
+            {/* Картинка кота */}
+            <CatImage uri="https://cataas.com/cat" />
+
             <Text style={styles.counter}>{count}</Text>
             <CircleButton onPress={() => setCount(count + 1)} />
-            {/* Кнопка магазину */}
             <ShopButton onPress={() => navigation.navigate('Shop')} />
         </View>
     );
