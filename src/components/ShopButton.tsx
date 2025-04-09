@@ -1,15 +1,37 @@
-import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import React, { useRef } from 'react';
+import { TouchableWithoutFeedback, Animated, Text, StyleSheet } from 'react-native';
 
 interface Props {
     onPress: () => void;
 }
 
 export default function ShopButton({ onPress }: Props) {
+    const scaleAnim = useRef(new Animated.Value(1)).current;
+
+    const handlePressIn = () => {
+        Animated.spring(scaleAnim, {
+            toValue: 1.1,
+            useNativeDriver: true,
+        }).start();
+    };
+
+    const handlePressOut = () => {
+        Animated.spring(scaleAnim, {
+            toValue: 1,
+            friction: 4,
+            useNativeDriver: true,
+        }).start(() => onPress());
+    };
+
     return (
-        <TouchableOpacity onPress={onPress} style={styles.button}>
-            <Text style={styles.text}>Shop</Text>
-        </TouchableOpacity>
+        <TouchableWithoutFeedback
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+        >
+            <Animated.View style={[styles.button, { transform: [{ scale: scaleAnim }] }]}>
+                <Text style={styles.text}>Shop</Text>
+            </Animated.View>
+        </TouchableWithoutFeedback>
     );
 }
 

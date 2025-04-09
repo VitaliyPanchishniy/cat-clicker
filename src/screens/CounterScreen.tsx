@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Animated, StyleSheet, Easing } from 'react-native';
 import CircleButton from '../components/CircleButton';
 import ShopButton from '../components/ShopButton';
 import { colors } from '../styles/colors';
@@ -10,12 +10,53 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Counter'>;
 
 export default function CounterScreen({ navigation }: Props) {
     const [count, setCount] = useState(0);
+    const opacityAnim = useRef(new Animated.Value(1)).current;
+    const scaleAnim = useRef(new Animated.Value(1)).current;
+
+    const animateCounter = () => {
+        opacityAnim.setValue(0);
+        scaleAnim.setValue(0.4);
+
+        Animated.parallel([
+            Animated.timing(opacityAnim, {
+                toValue: 1,
+                duration: 150,
+                easing: Easing.out(Easing.ease),
+                useNativeDriver: true,
+            }),
+            Animated.spring(scaleAnim, {
+                toValue: 1,
+                speed: 20,
+                bounciness: 10,
+                useNativeDriver: true,
+            }),
+        ]).start();
+    };
+
+    useEffect(() => {
+        animateCounter(); // запускаем анимацию после обновления count
+    }, [count]);
+
+    const handleIncrement = () => {
+        setCount(prev => prev + 1); // просто увеличиваем значение
+    };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.counter}>{count}</Text>
-            <CircleButton onPress={() => setCount(count + 1)} />
-            {/* Кнопка магазину */}
+            <Animated.Text style={[
+                styles.counter,
+                {
+                    transform: [{ scale: scaleAnim }],
+                    opacity: opacityAnim,
+                },
+            ]}>
+                {count}
+            </Animated.Text>
+
+            <View style={styles.buttonWrapper}>
+                <CircleButton onPress={handleIncrement} />
+            </View>
+
             <ShopButton onPress={() => navigation.navigate('Shop')} />
         </View>
     );
@@ -25,12 +66,17 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: colors.gray,
-        justifyContent: 'center',
-        alignItems: 'center',
     },
     counter: {
-        fontSize: 48,
+        fontSize: 72,
         color: colors.white,
-        marginBottom: 20,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginTop: 80,
+    },
+    buttonWrapper: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
