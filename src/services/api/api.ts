@@ -1,18 +1,22 @@
-// Need to use the React-specific entry point to import createApi
+// src/services/api/api.ts
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { Cat } from './types';
 
-// Define a service using a base URL and expected endpoints
 export const catClickerApi = createApi({
   reducerPath: 'catClickerApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'https://jsonplaceholder.typicode.com' }),
+  baseQuery: fetchBaseQuery({ baseUrl: 'https://cataas.com' }),
   endpoints: (builder) => ({
-    getAllPosts: builder.query<Cat, string>({
-      query: () => `/post`,
+    getCats: builder.query<Cat[], void>({
+      query: () => '/api/cats?limit=10',
+      transformResponse: (response: any[]) => {
+        return response.slice(0, 10).map((_, index) => ({
+          id: `cat-${index}`, // Генеруємо унікальний ID вручну
+          url: `https://cataas.com/cat?unique=${index}`, // Створюємо URL, щоб уникнути кешу
+          price: 10 + index * 5,
+        }));
+      },
     }),
   }),
 });
 
-// Export hooks for usage in functional components, which are
-// auto-generated based on the defined endpoints
-export const { useGetAllPostsQuery } = catClickerApi;
+export const { useGetCatsQuery } = catClickerApi;

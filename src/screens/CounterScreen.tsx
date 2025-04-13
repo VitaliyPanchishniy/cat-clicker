@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, Animated, StyleSheet, Easing } from 'react-native';
 import CircleButton from '../components/CircleButton';
 import ShopButton from '../components/ShopButton';
+// import CatImage from '../components/CatImage';
 import { colors } from '../styles/colors';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -34,15 +35,17 @@ export default function CounterScreen({ navigation }: Props) {
     };
 
     useEffect(() => {
-        animateCounter(); // запускаем анимацию после обновления count
+        animateCounter();
     }, [count]);
 
     const handleIncrement = () => {
-        setCount(prev => prev + 1); // просто увеличиваем значение
+        setCount(prev => prev + 1);
     };
 
     return (
         <View style={styles.container}>
+
+            {/* Анимированное число */}
             <Animated.Text style={[
                 styles.counter,
                 {
@@ -53,10 +56,12 @@ export default function CounterScreen({ navigation }: Props) {
                 {count}
             </Animated.Text>
 
+            {/* Кнопка по центру */}
             <View style={styles.buttonWrapper}>
-                <CircleButton onPress={handleIncrement} />
+                <CircleButton onPress={handleIncrement} catUri="https://cataas.com/cat" />
             </View>
 
+            {/* Кнопка перехода в магазин */}
             <ShopButton onPress={() => navigation.navigate('Shop')} />
         </View>
     );
@@ -66,13 +71,14 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: colors.gray,
+        paddingTop: 40,
     },
     counter: {
         fontSize: 72,
         color: colors.white,
         fontWeight: 'bold',
         textAlign: 'center',
-        marginTop: 80,
+        marginTop: 20,
     },
     buttonWrapper: {
         flex: 1,
