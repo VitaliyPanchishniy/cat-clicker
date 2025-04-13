@@ -1,6 +1,5 @@
-export type Post = {
-    userId: number;
-    id: number;
-    title: string;
-    body: string;
-};
+export interface Cat {
+  id: string;
+  url: string;
+  price: number;
+}
