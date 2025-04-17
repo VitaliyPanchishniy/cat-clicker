@@ -1,3 +1,5 @@
+// store/catsSlice.ts
+
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export type Cat = {
@@ -6,19 +8,19 @@ export type Cat = {
   price: number;
 };
 
-export type CatState = {
+type CatsState = {
   points: number;
   selectedCat: Cat | null;
   ownedCats: Cat[];
   allCats: Cat[];
-  shopCats: Cat[]; // список 5 рандомних котів
+  shopCats: Cat[];
 };
 
-const initialState: CatState = {
+const initialState: CatsState = {
   points: 0,
   selectedCat: null,
   ownedCats: [],
-  allCats: [], // 20 котів сюди
+  allCats: [],
   shopCats: [],
 };
 
@@ -27,35 +29,24 @@ const catsSlice = createSlice({
   initialState,
   reducers: {
     incrementPoints(state) {
-      state.points += 1;
+      state.points += 1; // Заробіток за 1 клік
     },
     buyCat(state, action: PayloadAction<Cat>) {
-      state.ownedCats.push(action.payload);
-      state.points -= action.payload.price;
-    },
-    selectCat(state, action: PayloadAction<Cat>) {
-      state.selectedCat = action.payload;
+      const cat = action.payload;
+      if (state.points >= cat.price && !state.ownedCats.some(c => c.id === cat.id)) {
+        state.points -= cat.price;
+        state.ownedCats.push(cat);
+      }
     },
     setAllCats(state, action: PayloadAction<Cat[]>) {
       state.allCats = action.payload;
     },
-    setShopCats(state, action: PayloadAction<Cat[]>) {
-      state.shopCats = action.payload;
-    },
     refreshShopCats(state) {
       const shuffled = [...state.allCats].sort(() => 0.5 - Math.random());
       state.shopCats = shuffled.slice(0, 5);
-    }
+    },
   },
 });
 
-export const {
-  incrementPoints,
-  buyCat,
-  selectCat,
-  setAllCats,
-  setShopCats,
-  refreshShopCats,
-} = catsSlice.actions;
-
+export const { incrementPoints, buyCat, setAllCats, refreshShopCats } = catsSlice.actions;
 export default catsSlice.reducer;

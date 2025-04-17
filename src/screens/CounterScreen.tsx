@@ -5,6 +5,7 @@ import ShopButton from '../components/ShopButton';
 import { colors } from '../styles/colors';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import InventoryButton from '../components/InventoryButton';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Counter'>;
 
@@ -58,6 +59,7 @@ export default function CounterScreen({ navigation }: Props) {
       </View>
 
       <ShopButton onPress={() => navigation.navigate('Shop')} />
+      <InventoryButton onPress={() => navigation.navigate('Inventory')} />
     </View>
   );
 }

@@ -1,57 +1,45 @@
 import React from 'react';
-import { View, Text, FlatList, Button, Image, StyleSheet } from 'react-native';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { buyCat } from '../store/catsSlice';
-import { useGetCatsQuery } from '../services/api/api';
+import { View, Text, FlatList, Image, StyleSheet } from 'react-native';
+import { useAppSelector } from '../store/hooks';
 
-const ShopScreen = () => {
-  const dispatch = useAppDispatch();
-  const { data: cats, isLoading } = useGetCatsQuery();
+export default function InventoryScreen() {
   const ownedCats = useAppSelector(state => state.cats.ownedCats);
-  const points = useAppSelector(state => state.cats.points);
-
-  if (isLoading) {
-    return <Text>Loading...</Text>;
-  }
-
-  const handleBuy = (cat: any) => {
-    if (points >= cat.price) {
-      dispatch(buyCat(cat));
-    }
-  };
 
   return (
-    <FlatList
-      data={cats}
-      keyExtractor={(item) => item.id}
-      renderItem={({ item }) => {
-        const isOwned = ownedCats.some(c => c.id === item.id);
-        return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Ваші Коти</Text>
+      <FlatList
+        data={ownedCats}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
           <View style={styles.catContainer}>
-            <Image source={{ uri: `https://cataas.com/cat/${item.id}` }} style={styles.image} />
+            <Image source={{ uri: item.url }} style={styles.image} />
+            <Text>ID: {item.id}</Text>
             <Text>Price: {item.price}</Text>
-            <Button
-              title={isOwned ? 'Придбано' : 'Купити'}
-              disabled={isOwned || points < item.price}
-              onPress={() => handleBuy(item)}
-            />
           </View>
-        );
-      }}
-    />
+        )}
+      />
+    </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
+  container: {
+    paddingTop: 60,
+    paddingHorizontal: 16,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
   catContainer: {
     alignItems: 'center',
     marginBottom: 20,
   },
   image: {
-    width: 150,
-    height: 150,
+    width: 120,
+    height: 120,
     marginBottom: 10,
   },
 });
-
-export default ShopScreen;
