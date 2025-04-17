@@ -1,19 +1,24 @@
 import React from 'react';
 import { Image, StyleSheet } from 'react-native';
 
-interface Props {
-  uri: string;
-}
+type Cat = {
+  id: string;
+  url: string;
+};
 
-export default function CatImage({ uri }: Props) {
-  return <Image source={{ uri }} style={styles.image} />;
+type Props = {
+  cat: Cat | null;
+};
+
+export default function CatImage({ cat }: Props) {
+  if (!cat) return null;
+  return <Image source={{ uri: cat.url }} style={styles.image} />;
 }
 
 const styles = StyleSheet.create({
   image: {
     width: 200,
     height: 200,
-    borderRadius: 10,
-    marginBottom: 20,
+    borderRadius: 16,
   },
 });

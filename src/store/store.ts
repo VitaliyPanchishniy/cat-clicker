@@ -1,8 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
+import catsReducer from './catsSlice';
 import { catClickerApi } from '../services/api/api';
 
 export const store = configureStore({
   reducer: {
+    cats: catsReducer,
     [catClickerApi.reducerPath]: catClickerApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
