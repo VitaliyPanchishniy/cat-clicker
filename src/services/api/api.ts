@@ -1,18 +1,20 @@
+// src/services/api/api.ts
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import type { Cat } from '../../store/catsSlice';
+import { Cat } from './types';
 
 export const catClickerApi = createApi({
   reducerPath: 'catClickerApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'https://cataas.com/api/' }),
+  baseQuery: fetchBaseQuery({ baseUrl: 'https://cataas.com' }),
   endpoints: (builder) => ({
     getCats: builder.query<Cat[], void>({
-      query: () => 'cats?limit=20',
-      transformResponse: (response: any[]) =>
-        response.map((cat: any) => ({
-          id: cat.id,
-          url: `https://cataas.com/cat/${cat.id}`,
-          price: Math.floor(Math.random() * 100) + 50,
-        })),
+      query: () => '/api/cats?limit=10',
+      transformResponse: (response: any[]) => {
+        return response.slice(0, 10).map((_, index) => ({
+          id: `cat-${index}`, // Генеруємо унікальний ID вручну
+          url: `https://cataas.com/cat?unique=${index}`, // Створюємо URL, щоб уникнути кешу
+          price: 10 + index * 5,
+        }));
+      },
     }),
   }),
 });

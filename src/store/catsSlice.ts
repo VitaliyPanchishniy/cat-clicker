@@ -1,52 +1,82 @@
-// store/catsSlice.ts
+// src/store/catsSlice.ts
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { Cat } from '../services/api/types';
 
-export type Cat = {
-  id: string;
-  url: string;
-  price: number;
-};
-
-type CatsState = {
+interface CatsState {
   points: number;
   selectedCat: Cat | null;
   ownedCats: Cat[];
-  allCats: Cat[];
   shopCats: Cat[];
-};
+  allCats: Cat[]; // повний список котів (можливо з API)
+}
 
 const initialState: CatsState = {
   points: 0,
   selectedCat: null,
   ownedCats: [],
-  allCats: [],
   shopCats: [],
+  allCats: [],
 };
 
 const catsSlice = createSlice({
   name: 'cats',
   initialState,
   reducers: {
-    incrementPoints(state) {
-      state.points += 1; // Заробіток за 1 клік
+    addPoint: (state) => {
+      state.points += 1;
     },
-    buyCat(state, action: PayloadAction<Cat>) {
+    buyCat: (state, action: PayloadAction<Cat>) => {
       const cat = action.payload;
-      if (state.points >= cat.price && !state.ownedCats.some(c => c.id === cat.id)) {
+      if (state.points >= cat.price && !state.ownedCats.find((c) => c.id === cat.id)) {
         state.points -= cat.price;
         state.ownedCats.push(cat);
       }
     },
-    setAllCats(state, action: PayloadAction<Cat[]>) {
-      state.allCats = action.payload;
+    selectCat: (state, action: PayloadAction<Cat>) => {
+      state.selectedCat = action.payload;
     },
-    refreshShopCats(state) {
-      const shuffled = [...state.allCats].sort(() => 0.5 - Math.random());
-      state.shopCats = shuffled.slice(0, 5);
+    setShopCats: (state, action: PayloadAction<Cat[]>) => {
+      state.shopCats = action.payload;
     },
+   setAllCats: (state, action: PayloadAction<Cat[]>) => {
+  const uniqueMap = new Map<string, Cat>();
+  action.payload.forEach((cat) => {
+    if (!uniqueMap.has(cat.id)) {
+      uniqueMap.set(cat.id, cat);
+    }
+  });
+  const uniqueCats = Array.from(uniqueMap.values());
+
+  state.allCats = uniqueCats;
+  state.shopCats = uniqueCats.slice(0, 6);
+},
+
+    refreshShopCats: (state) => {
+  const uniqueMap = new Map<string, Cat>();
+  const shuffled = [...state.allCats].sort(() => 0.5 - Math.random());
+
+  for (const cat of shuffled) {
+    if (!uniqueMap.has(cat.id)) {
+      uniqueMap.set(cat.id, cat);
+    }
+    if (uniqueMap.size === 6) break; // зупиняємось на 6 унікальних котах
+  }
+
+  state.shopCats = Array.from(uniqueMap.values());
+},
+
   },
 });
 
-export const { incrementPoints, buyCat, setAllCats, refreshShopCats } = catsSlice.actions;
+export const {
+  addPoint,
+  buyCat,
+  selectCat,
+  setShopCats,
+  setAllCats,
+  refreshShopCats,
+} = catsSlice.actions;
+
+
 export default catsSlice.reducer;

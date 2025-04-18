@@ -5,25 +5,24 @@ type Props = {
   onPress: () => void;
 };
 
-export default function InventoryButton({ onPress }: Props) {
-  return (
-    <TouchableOpacity style={styles.button} onPress={onPress}>
-      <Text style={styles.text}>Інвентар</Text>
-    </TouchableOpacity>
-  );
-}
+const InventoryButton = ({ onPress }: Props) => (
+  <TouchableOpacity style={styles.button} onPress={onPress}>
+    <Text style={styles.text}>🎒 Інвентар</Text>
+  </TouchableOpacity>
+);
 
 const styles = StyleSheet.create({
   button: {
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 12,
     position: 'absolute',
-    bottom: 30,
-    left: 30,
-    padding: 12,
-    backgroundColor: '#4caf50',
-    borderRadius: 8,
+    bottom: 20,
+    left: 20,
   },
   text: {
-    color: 'white',
-    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
+
+export default InventoryButton;
