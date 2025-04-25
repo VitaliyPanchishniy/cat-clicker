@@ -5,7 +5,7 @@ export const colors = {
   primary: '#4CAF50',
   yellow: '#FFFF00',
   coin: '#FFD700',
-  background: '#f8f8f8',
+  background: '#FFDAB9',
   accent: '#ff8c00',
   text: '#333333',
 };

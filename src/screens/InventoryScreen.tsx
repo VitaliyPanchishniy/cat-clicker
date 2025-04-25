@@ -6,9 +6,8 @@ import CatImage from '../components/CatImage';
 
 const InventoryScreen = () => {
   const dispatch = useAppDispatch();
-  const { ownedCats } = useAppSelector((state) => state.cats);
-  console.log(ownedCats);
-  
+  const { ownedCats, selectedCat } = useAppSelector((state) => state.cats);
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Inventory</Text>
@@ -18,12 +17,19 @@ const InventoryScreen = () => {
         <FlatList
           data={ownedCats}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => dispatch(selectCat(item))} style={styles.card}>
-              <CatImage url={item.url} />
-              <Text style={styles.idText}>ID: {item.id}</Text>
-            </TouchableOpacity>
-          )}
+          renderItem={({ item }) => {
+            const isSelected = selectedCat?.id === item.id;
+            return (
+              <TouchableOpacity
+                onPress={() => dispatch(selectCat(item))}
+                style={[styles.card, isSelected && styles.selectedCard]}
+              >
+                <CatImage url={item.url} width={120} height={120} />
+                <Text style={styles.idText}>ID: {item.id}</Text>
+                {isSelected && <Text style={styles.selectedLabel}>Selected</Text>}
+              </TouchableOpacity>
+            );
+          }}
           numColumns={2}
           contentContainerStyle={styles.list}
         />
@@ -53,6 +59,7 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingHorizontal: 10,
+    paddingBottom: 30,
   },
   card: {
     flex: 1,
@@ -62,9 +69,19 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 12,
   },
+  selectedCard: {
+    borderWidth: 2,
+    borderColor: '#ff8c00',
+  },
   idText: {
     marginTop: 5,
     fontSize: 12,
     color: '#666',
+  },
+  selectedLabel: {
+    marginTop: 4,
+    fontSize: 14,
+    color: '#ff8c00',
+    fontWeight: 'bold',
   },
 });

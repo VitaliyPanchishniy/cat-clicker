@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Animated, TouchableOpacity, Image } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Animated,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { addPoint } from '../store/catsSlice';
 import CatImage from '../components/CatImage';
@@ -9,14 +16,14 @@ import { useNavigation } from '@react-navigation/native';
 
 const CounterScreen = () => {
   const dispatch = useAppDispatch();
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { points, selectedCat } = useAppSelector((state) => state.cats);
 
   const [fadeAnim] = useState(new Animated.Value(0));
 
   const handleClick = () => {
     dispatch(addPoint());
-
 
     fadeAnim.setValue(1);
     Animated.timing(fadeAnim, {
@@ -30,23 +37,31 @@ const CounterScreen = () => {
     <View style={styles.container}>
       <Text style={styles.points}>CatCoins: {points}</Text>
 
-      <TouchableOpacity onPress={handleClick}>
+      <TouchableOpacity onPress={handleClick} activeOpacity={0.8}>
         {selectedCat ? (
-          <CatImage url={selectedCat.url} />
+          <CatImage url={selectedCat.url} width={250} height={250} />
         ) : (
           <Image
             source={{ uri: 'https://cataas.com/cat/says/Click%20me!' }}
             style={styles.defaultCat}
           />
         )}
-        <Animated.Text style={[styles.plusOne, { opacity: fadeAnim }]}>+1</Animated.Text>
+        <Animated.Text style={[styles.plusOne, { opacity: fadeAnim }]}>
+          +1
+        </Animated.Text>
       </TouchableOpacity>
 
       <View style={styles.bottomButtons}>
-        <TouchableOpacity onPress={() => navigation.navigate('Inventory')} style={styles.button}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Inventory')}
+          style={styles.button}
+        >
           <Text style={styles.buttonText}>🎒</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Shop')} style={styles.button}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Shop')}
+          style={styles.button}
+        >
           <Text style={styles.buttonText}>🛒</Text>
         </TouchableOpacity>
       </View>
@@ -92,7 +107,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
   },
   button: {
-    backgroundColor: '#ff8c00',
+    backgroundColor: '#008080',
     padding: 12,
     borderRadius: 30,
   },

@@ -1,16 +1,17 @@
 import React from 'react';
 import { Image, StyleSheet } from 'react-native';
 
-interface Props {
+type Props = {
   url: string;
-}
+  width?: number;
+  height?: number;
+};
 
-const CatImage: React.FC<Props> = ({ url }) => {
-   console.log('Rendering CatImage with url:', url); // Додано лог
+const CatImage = ({ url, width = 250, height = 250 }: Props) => {
   return (
     <Image
       source={{ uri: url }}
-      style={styles.image}
+      style={[styles.image, { width, height }]}
       resizeMode="cover"
     />
   );
@@ -20,9 +21,6 @@ export default CatImage;
 
 const styles = StyleSheet.create({
   image: {
-    width: 100,
-    height: 100,
-    borderRadius: 8,
-    backgroundColor: '#ccc',
+    borderRadius: 12,
   },
 });
