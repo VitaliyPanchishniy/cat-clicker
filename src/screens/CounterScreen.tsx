@@ -16,11 +16,11 @@ import { useNavigation } from '@react-navigation/native';
 
 const CounterScreen = () => {
   const dispatch = useAppDispatch();
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { points, selectedCat } = useAppSelector((state) => state.cats);
 
   const [fadeAnim] = useState(new Animated.Value(0));
+  const [activeTab, setActiveTab] = useState<'Inventory' | 'Shop'>('Inventory');
 
   const handleClick = () => {
     dispatch(addPoint());
@@ -31,6 +31,11 @@ const CounterScreen = () => {
       duration: 800,
       useNativeDriver: true,
     }).start();
+  };
+
+  const handleTabPress = (tab: 'Inventory' | 'Shop') => {
+    setActiveTab(tab);
+    navigation.navigate(tab);
   };
 
   return (
@@ -51,20 +56,43 @@ const CounterScreen = () => {
         </Animated.Text>
       </TouchableOpacity>
 
-      <View style={styles.bottomButtons}>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Inventory')}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}>🎒</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Shop')}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}>🛒</Text>
-        </TouchableOpacity>
-      </View>
+      {/* Нижнє меню з 3 вкладками */}
+<View style={styles.bottomMenu}>
+  {/* Інвентар */}
+  <TouchableOpacity
+    style={styles.tabButton}
+    onPress={() => handleTabPress('Inventory')}
+  >
+    <Text style={styles.icon}>🎒</Text>
+    <Text style={[styles.tabText, activeTab === 'Inventory' && styles.activeTabText]}>
+      Інвентар
+    </Text>
+    {activeTab === 'Inventory' && <View style={styles.activeLine} />}
+  </TouchableOpacity>
+
+  {/* Центральна кнопка */}
+  <View style={styles.centerButtonWrapper}>
+    <TouchableOpacity
+      style={styles.centerButton}
+      onPress={() => navigation.navigate('Counter')} // або залишити порожнім, якщо вже на Home
+    >
+      <Text style={styles.centerIcon}>🐱</Text>
+    </TouchableOpacity>
+  </View>
+
+  {/* Магазин */}
+  <TouchableOpacity
+    style={styles.tabButton}
+    onPress={() => handleTabPress('Shop')}
+  >
+    <Text style={styles.icon}>🛒</Text>
+    <Text style={[styles.tabText, activeTab === 'Shop' && styles.activeTabText]}>
+      Магазин
+    </Text>
+    {activeTab === 'Shop' && <View style={styles.activeLine} />}
+  </TouchableOpacity>
+</View>
+
     </View>
   );
 };
@@ -98,20 +126,75 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     width: '100%',
   },
-  bottomButtons: {
+  bottomMenu: {
     flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
     position: 'absolute',
-    bottom: 30,
+    bottom: 0,
     width: '100%',
-    justifyContent: 'space-between',
-    paddingHorizontal: 30,
+    height: 70,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#ddd',
   },
-  button: {
-    backgroundColor: '#008080',
-    padding: 12,
-    borderRadius: 30,
+  tabButton: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    paddingVertical: 8,
   },
-  buttonText: {
-    fontSize: 24,
+  icon: {
+    fontSize: 22,
   },
+  tabText: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 4,
+  },
+  activeTabText: {
+    color: '#ff6600', // помаранчевий текст для активної вкладки
+    fontWeight: 'bold',
+  },
+  activeLine: {
+    position: 'absolute',
+    top: 0,
+    height: 3,
+    width: '60%',
+    backgroundColor: '#ff6600',
+    borderRadius: 2,
+  },
+  centerButtonWrapper: {
+  width: 70,
+  height: 70,
+  borderRadius: 35,
+  backgroundColor: '#fff',
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginBottom: 30,
+},
+
+centerButton: {
+  width: 60,
+  height: 60,
+  borderRadius: 30,
+  backgroundColor: '#ff6600',
+  justifyContent: 'center',
+  alignItems: 'center',
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.3,
+  shadowRadius: 4,
+  elevation: 5,
+},
+
+centerIcon: {
+  fontSize: 28,
+  color: '#fff',
+},
+
 });
+
+
+
