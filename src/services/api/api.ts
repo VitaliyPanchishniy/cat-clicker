@@ -7,12 +7,12 @@ export const catClickerApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: 'https://cataas.com' }),
   endpoints: (builder) => ({
     getCats: builder.query<Cat[], void>({
-      query: () => '/api/cats?limit=10',
+      query: () => '/api/cats?limit=100',
       transformResponse: (response: any[]) => {
-        return response.slice(0, 10).map((_, index) => ({
+        return response.slice(0, 100).map((_, index) => ({
           id: `cat-${index}`, // Генеруємо унікальний ID вручну
           url: `https://cataas.com/cat?unique=${index}`, // Створюємо URL, щоб уникнути кешу
-          price: 10 + index * 5,
+          price: 10 * 5,
         }));
       },
     }),

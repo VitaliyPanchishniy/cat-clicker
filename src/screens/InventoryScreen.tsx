@@ -38,7 +38,6 @@ const InventoryScreen = () => {
                 style={[styles.catCard, isSelected && styles.selectedCard]}
               >
                 <CatImage url={item.url} width={100} height={100} />
-                <Text style={styles.catId}>ID: {item.id}</Text>
                 {isSelected && <Text style={styles.selectedLabel}>Обраний</Text>}
               </TouchableOpacity>
             );

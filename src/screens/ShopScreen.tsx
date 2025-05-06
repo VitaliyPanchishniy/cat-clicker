@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -10,12 +10,14 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { buyCat } from '../store/catsSlice';
+import { buyCat, addPoints } from '../store/catsSlice';
 import { useGetCatsQuery } from '../services/api/api';
 import { Cat } from '../services/api/types';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
+
+const MAX_VISIBLE_CATS = 6;
 
 const ShopScreen = () => {
   const dispatch = useAppDispatch();
@@ -23,17 +25,21 @@ const ShopScreen = () => {
   const ownedCats = useAppSelector((state) => state.cats.ownedCats);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { data: cats = [], isLoading, error } = useGetCatsQuery();
+
+  const [displayedCats, setDisplayedCats] = useState<Cat[]>([]);
+  const animatedValues = useRef<Animated.Value[]>([]).current;
   const [activeTab, setActiveTab] = useState<'Inventory' | 'Shop' | 'Counter'>('Shop');
 
-  const animatedValues = useRef<Animated.Value[]>([]).current;
-
-  if (cats && animatedValues.length !== cats.length) {
-    cats.forEach((_, i) => {
-      if (!animatedValues[i]) {
+  useEffect(() => {
+    if (cats.length && displayedCats.length === 0) {
+      const filtered = cats.filter((cat) => !ownedCats.some((owned) => owned.id === cat.id));
+      const initial = filtered.slice(0, MAX_VISIBLE_CATS);
+      setDisplayedCats(initial);
+      initial.forEach((_, i) => {
         animatedValues[i] = new Animated.Value(1);
-      }
-    });
-  }
+      });
+    }
+  }, [cats, ownedCats]);
 
   const handleBuy = (cat: Cat, index: number) => {
     const isOwned = ownedCats.some((c) => c.id === cat.id);
@@ -45,6 +51,29 @@ const ShopScreen = () => {
       useNativeDriver: true,
     }).start(() => {
       dispatch(buyCat(cat));
+
+      const usedIds = new Set([
+        ...ownedCats.map((c) => c.id),
+        ...displayedCats.map((c) => c.id),
+        cat.id,
+      ]);
+      const nextCat = cats.find((c) => !usedIds.has(c.id));
+      const updated = [...displayedCats];
+
+      if (nextCat) {
+        updated[index] = nextCat;
+        animatedValues[index] = new Animated.Value(0);
+        setDisplayedCats(updated);
+
+        Animated.timing(animatedValues[index], {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true,
+        }).start();
+      } else {
+        updated.splice(index, 1);
+        setDisplayedCats(updated);
+      }
     });
   };
 
@@ -53,7 +82,21 @@ const ShopScreen = () => {
     navigation.navigate(tab);
   };
 
-  const renderItem = ({ item, index }: { item: Cat; index: number }) => {
+  const renderItem = ({ item, index }: { item: Cat | 'donate'; index: number }) => {
+    if (item === 'donate') {
+      return (
+        <View style={styles.catCard}>
+          <Text style={styles.catPrice}>🎁 Безкоштовні CatCoins</Text>
+          <TouchableOpacity
+            style={[styles.buyButton, { backgroundColor: '#4ADE80' }]}
+            onPress={() => dispatch(addPoints(100))}
+          >
+            <Text style={styles.buyButtonText}>Отримати 100 монет</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
     const isOwned = ownedCats.some((c) => c.id === item.id);
     const animatedStyle = {
       opacity: animatedValues[index],
@@ -66,10 +109,9 @@ const ShopScreen = () => {
         <Text style={styles.catPrice}>💰 {item.price}</Text>
         <TouchableOpacity
           style={[
-           styles.buyButton,
-            (isOwned || points < item.price) && styles.buttonDisabled
+            styles.buyButton,
+            (isOwned || points < item.price) && styles.buttonDisabled,
           ]}
-
           onPress={() => handleBuy(item, index)}
           disabled={isOwned || points < item.price}
         >
@@ -90,7 +132,7 @@ const ShopScreen = () => {
     );
   }
 
-  if (error || !cats) {
+  if (error || !cats.length) {
     return (
       <View style={styles.center}>
         <Text style={styles.errorText}>Не вдалося завантажити котів 😿</Text>
@@ -102,15 +144,21 @@ const ShopScreen = () => {
     <View style={styles.container}>
       <Text style={styles.title}>🐾 Магазин котів</Text>
       <Text style={styles.points}>CatCoins: {points}</Text>
-      <FlatList
-        data={cats}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        contentContainerStyle={styles.list}
-        renderItem={renderItem}
-      />
 
-      {/* Нижнє меню */}
+      {displayedCats.length === 0 ? (
+        <View style={styles.center}>
+          <Text style={{ fontSize: 16 }}>😺 Ви купили всіх доступних котиків!</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={[...displayedCats, 'donate']}
+          keyExtractor={(item, index) => (item === 'donate' ? 'donate' : item.id)}
+          numColumns={2}
+          contentContainerStyle={styles.list}
+          renderItem={renderItem}
+        />
+      )}
+
       <View style={styles.bottomMenu}>
         <TouchableOpacity style={styles.tabButton} onPress={() => handleTabPress('Inventory')}>
           <Text style={styles.icon}>🎒</Text>
@@ -140,6 +188,7 @@ const ShopScreen = () => {
 
 export default ShopScreen;
 
+// СТИЛІ залишаються ті ж
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFF8F0', paddingTop: 50 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFF8F0' },
@@ -155,6 +204,8 @@ const styles = StyleSheet.create({
     padding: 8,
     alignItems: 'center',
     elevation: 3,
+    minHeight: 180,
+    justifyContent: 'center',
   },
   catImage: { width: 100, height: 100, borderRadius: 8 },
   catPrice: { marginTop: 8, fontSize: 14, fontWeight: 'bold', color: '#FF8C00' },
