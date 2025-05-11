@@ -18,7 +18,7 @@ const CoinAnimation: React.FC<CoinAnimationProps> = ({ animatedValue }) => {
 
   return (
     <Animated.View style={[styles.coin, { opacity, transform: [{ translateY }] }]}>
-      <Image source={require('../assets/catcoin.png')} style={styles.image} />
+      <Image source={require('../assets/cc.png')} style={styles.image} />
       <Text style={styles.text}>+1</Text>
     </Animated.View>
   );
