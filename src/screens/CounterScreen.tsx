@@ -6,10 +6,29 @@ import CatImage from '../components/CatImage';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useNavigation } from '@react-navigation/native';
-import CatCoinIcon from '../assets/cc.png';
 import CoinAnimation from '../components/CoinAnimation';
+import FallingCoin from '../components/FallingCoin';
 
 const CounterScreen = () => {
+  const textScale = useRef(new Animated.Value(1)).current;
+
+  React.useEffect(() => {
+    Animated.loop(
+        Animated.sequence([
+          Animated.timing(textScale, {
+            toValue: 1.1,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.timing(textScale, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+        ])
+    ).start();
+  }, []);
+
   const dispatch = useAppDispatch();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { points, selectedCat } = useAppSelector((state) => state.cats);
@@ -17,9 +36,11 @@ const CounterScreen = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const [activeTab, setActiveTab] = useState<'Inventory' | 'Shop'>('Inventory');
+  const [fallingCoins, setFallingCoins] = useState<number[]>([]);
 
   const handleClick = () => {
     dispatch(addPoint());
+    spawnFallingCoin();
 
     // Немедленно сбрасываем обе анимации
     fadeAnim.stopAnimation(() => {
@@ -50,6 +71,16 @@ const CounterScreen = () => {
     });
   };
 
+  const spawnFallingCoin = () => {
+    const id = Date.now() + Math.random(); // уникальный id
+    setFallingCoins(prev => [...prev, id]);
+
+    // Удаляем монетку после окончания анимации (1.5 сек)
+    setTimeout(() => {
+      setFallingCoins(prev => prev.filter(cid => cid !== id));
+    }, 1500);
+  };
+
 
   const handleTabPress = (tab: 'Inventory' | 'Shop') => {
     setActiveTab(tab);
@@ -58,10 +89,19 @@ const CounterScreen = () => {
 
   return (
       <View style={styles.container}>
+
+        <Animated.Text style={[styles.clickText, { transform: [{ scale: textScale }] }]}>
+          КЛІКАЙ ПО КОТУ
+        </Animated.Text>
+
         <View style={styles.pointsContainer}>
           <Image source={require('../assets/cc.png')} style={styles.catCoinIcon} />
           <Text style={styles.pointsText}>{points}</Text>
         </View>
+
+        {fallingCoins.map(id => (
+            <FallingCoin key={id} />
+        ))}
 
         <TouchableOpacity onPress={handleClick} activeOpacity={0.8} style={styles.catButton}>
           <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
@@ -122,7 +162,7 @@ export default CounterScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fefefe',
+    backgroundColor: '#FFF8F0',
     alignItems: 'center',
     justifyContent: 'center',
     paddingTop: 40,
@@ -234,7 +274,14 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   catButton: {
-    marginBottom: 300,
+    marginBottom: 250,
+  },
+  clickText: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    color: '#ff6d00',
+    marginBottom: 100,
+    textAlign: 'center',
   },
 });
 
